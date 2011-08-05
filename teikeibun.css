@@ -1,0 +1,31 @@
+/**
+ * 定型文生成マネージャー用スタイルシート
+ */
+#teikeibunTemplate,
+#teikeibunCopyTextarea {
+  border:1px solid black;
+  white-space: pre;
+  padding: 1em;
+}
+
+.variable {
+  background: #bbb;
+  padding: 0 5px;
+  cursor: pointer;
+}
+
+.incomplete {
+  color: #D8000C;
+  background-color: #FFBABA;
+}
+
+.complete{
+  color: #4F8A10;
+  background-color: #DFF2BF;
+}
+
+.editing {
+  color: #00529B;
+  background-color: #BDE5F8;
+  font-size: 120%;
+}

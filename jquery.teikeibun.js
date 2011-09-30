@@ -8,6 +8,7 @@ jQuery(function($)
 	 * const
 	 */
 	var TEIKEIBUN_FORM          = '#teikeibunForm'; // 入力フォーム
+	var TEIKEIBUN_TABLE         = '#teikeibunTable'; // テーブル
 	var TEIKEIBUN_TEMPLATE      = '#teikeibunTemplate'; // テンプレート
 	var TEIKEIBUN_COPY_TEXTAREA = '#teikeibunCopyTextarea'; // コピー用テキストエリア
 	var PLACEHOLDER_PREFIX      = '例: '; // placehodlerの値に付け加える文字列
@@ -28,15 +29,26 @@ jQuery(function($)
 	var createTeikeibunForm = function(){
 		if ( $(TEIKEIBUN_FORM).length == 0 ) {
 			// 入力フォームがなければ作る 
-			$('<form />').insertBefore(TEIKEIBUN_TEMPLATE)
-			         .attr('id', TEIKEIBUN_FORM.substr(1));
+			$('<form />')
+				.insertBefore(TEIKEIBUN_TEMPLATE)
+				.attr('id', TEIKEIBUN_FORM.substr(1))
+			;
 		}
+		
+		// テーブルを作る
+		$('<table />')
+			.attr('id', TEIKEIBUN_TABLE.substr(1))
+			.appendTo(TEIKEIBUN_FORM)
+		;
 	};
 
 	/**
 	 * 入力フィールドを描画する
 	 */
 	var appendInputFields = function(){
+	
+		var titles = {};
+	
 		$(TEIKEIBUN_TEMPLATE).find('span').each(function(){
 
 			var attributes  = {}; 
@@ -55,6 +67,25 @@ jQuery(function($)
 				return;
 			}
 
+			var title = attributes['title'];
+
+			// 同じ入力欄は作らない
+			if ( titles[title] == true ) {
+				return;
+			}
+
+			// 例の長さからちょうどいいサイズにする
+			var length = getTextWidth(placeholder);
+
+			if ( length > 600 ) {
+				tag = 'textarea';
+				attributes['rows'] = 5;
+				attributes['cols'] = 80;
+			} else {
+				tag = 'input';
+				attributes['width'] = length;
+			}
+
 			// タグ指定があれば、それを使う
 			if ( typeof attributes['tag'] !== "undefined" && attributes['tag'] ) {
 				tag = attributes['tag'];
@@ -65,14 +96,16 @@ jQuery(function($)
 				type = attributes['type'];
 			}
 
-			// 項目名タグを生成する
-			var titleTag = $('<span />').text(attributes['title']).append(' : ');
-
 			// 入力タグを生成する
 			var inputTag = $('<'+tag+' type="'+type+'" />')
-			                   .val('')
-			                   .attr('placeholder', placeholder)
-			                   .attr('name', name);
+				.val('')
+				.attr('placeholder', placeholder)
+				.attr('name', name)
+			;
+
+			if ( attributes['width'] && attributes['width'] > 0 ) {
+				inputTag.css('width', attributes['width']+'px');
+			}
 
 			// 他に属性があれば、それを入力フィールドのタグに引き継ぐ
 			$.each(attributes, function(name, value) {
@@ -81,12 +114,18 @@ jQuery(function($)
 					return; // typeは上書きできないのでパス
 				}
 
+				if ( name == 'width' ) {
+					return; // 幅は他で使うのでパス
+				}
+
 				inputTag.attr(name, value);
 			});
 
-			$('<div />').appendTo(TEIKEIBUN_FORM)
-			            .append(titleTag)
-			            .append(inputTag);
+			var tr = $('<tr />').appendTo(TEIKEIBUN_TABLE);
+			var tdTitle = $('<td />').text(attributes['title']).appendTo(tr);
+			var tdInput = $('<td />').append(inputTag).appendTo(tr);
+
+			titles[title] = true; // 消し込み
 		});
 	};
 
@@ -199,6 +238,16 @@ jQuery(function($)
 	var dehighlightVariable = function() {
 		var title = $(this).attr('title');
 		$(TEIKEIBUN_TEMPLATE).find('[title='+title+']').removeClass('editing');
+	};
+
+	/**
+	 * 文字の幅をpxで返す
+	 */
+	var getTextWidth = function(string) {
+		var span = $('<span />').text(string).appendTo('body');
+		var width = span.width();
+		span.remove();
+		return width;
 	};
 
 	main(); // メイン処理実行

@@ -37,6 +37,7 @@ jQuery(function($)
 		
 		// テーブルを作る
 		$('<table />')
+			.addClass('outer')
 			.attr('id', TEIKEIBUN_TABLE.substr(1))
 			.appendTo(TEIKEIBUN_FORM)
 		;
@@ -79,8 +80,8 @@ jQuery(function($)
 
 			if ( length > 600 ) {
 				tag = 'textarea';
-				attributes['rows'] = 5;
-				attributes['cols'] = 80;
+				attributes['rows'] = 6;
+				attributes['cols'] = 60;
 			} else {
 				tag = 'input';
 				attributes['width'] = length;
@@ -122,11 +123,14 @@ jQuery(function($)
 			});
 
 			var tr = $('<tr />').appendTo(TEIKEIBUN_TABLE);
-			var tdTitle = $('<td />').text(attributes['title']).appendTo(tr);
+			var tdTitle = $('<td />').addClass('head').text(attributes['title']).appendTo(tr);
 			var tdInput = $('<td />').append(inputTag).appendTo(tr);
 
 			titles[title] = true; // 消し込み
 		});
+		
+		$(TEIKEIBUN_TABLE).find('tr:odd').addClass('odd');
+		$(TEIKEIBUN_TABLE).find('tr:even').addClass('even');
 	};
 
 	/**
